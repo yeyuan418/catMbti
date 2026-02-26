@@ -1,0 +1,1279 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>猫咪MBTI性格测试</title>
+<style>
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+body {
+  background: #fdfbfb;
+  color: #333;
+}
+.wrap {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+/* 授权页 */
+.auth-box {
+  background: #fff;
+  border-radius: 16px;
+  padding: 40px 24px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+  text-align: center;
+  margin-top: 8vh;
+}
+.auth-box h2 {
+  color: #ff6b9b;
+  margin-bottom: 20px;
+}
+.auth-input {
+  width: 100%;
+  padding: 14px 16px;
+  border: 1px solid #eee;
+  border-radius: 12px;
+  font-size: 16px;
+  text-align: center;
+  margin-bottom: 20px;
+  outline: none;
+}
+.auth-input:focus {
+  border-color: #ff6b9b;
+}
+.btn {
+  display: block;
+  width: 100%;
+  padding: 16px;
+  background: #ff6b9b;
+  color: #fff;
+  border: none;
+  border-radius: 12px;
+  font-size: 16px;
+  cursor: pointer;
+}
+.btn:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+}
+.error {
+  color: #ff4444;
+  margin-bottom: 12px;
+  font-size: 14px;
+  display: none;
+}
+.agreement {
+  font-size: 12px;
+  color: #999;
+  margin-top: 24px;
+  line-height: 1.4;
+}
+
+/* 测试页 */
+.header {
+  text-align: center;
+  margin-bottom: 20px;
+}
+.header h1 {
+  font-size: 24px;
+  color: #ff6b9b;
+}
+.question-box {
+  background: #fff;
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+  margin-bottom: 20px;
+  min-height: 60vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+.question-num {
+  font-size: 14px;
+  color: #999;
+  margin-bottom: 12px;
+}
+.question-text {
+  font-size: 18px;
+  margin-bottom: 24px;
+  line-height: 1.5;
+}
+.option {
+  padding: 14px 16px;
+  border: 1px solid #eee;
+  border-radius: 12px;
+  margin: 8px 0;
+  cursor: pointer;
+  background: #fafafa;
+}
+.option.active {
+  background: #ff6b9b;
+  color: #fff;
+  border-color: #ff6b9b;
+}
+.result {
+  background: #fff;
+  border-radius: 16px;
+  padding: 30px 24px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+  text-align: center;
+}
+.result h2 {
+  color: #ff4a7e;
+  margin-bottom: 12px;
+}
+.result .type {
+  font-size: 26px;
+  font-weight: bold;
+  color: #ff3366;
+  margin-bottom: 20px;
+}
+.result .dim-box {
+  text-align: left;
+  margin: 10px 0;
+}
+.result .dim-label {
+  display: flex;
+  justify-content: space-between;
+  font-size: 14px;
+  margin-bottom: 4px;
+}
+.result .dim-bar {
+  height: 8px;
+  background: #f0f0f0;
+  border-radius: 4px;
+  overflow: hidden;
+}
+.result .dim-fill {
+  height: 100%;
+  background: #ff6b9b;
+  border-radius: 4px;
+}
+.result .desc {
+  margin-top: 24px;
+  font-size: 15px;
+  color: #333;
+  line-height: 1.7;
+  text-align: left;
+  white-space: pre-line;
+}
+.hide {
+  display: none !important;
+}
+.progress {
+  text-align: center;
+  color: #888;
+  margin-bottom: 10px;
+  font-size: 14px;
+}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <!-- 授权页 -->
+  <div id="authPage">
+    <div class="auth-box">
+      <h2>🐱 猫咪MBTI深度测试</h2>
+      <div class="error" id="error">授权码不正确</div>
+      <input type="text" class="auth-input" id="authCode" placeholder="请输入授权码">
+      <button class="btn" id="goBtn">进入测试</button>
+      <div class="agreement">
+        本测试为虚拟娱乐内容，一经授权使用，不支持退款、退换、转让。<br>
+        严禁盗用、复制、二次传播，违者将依法追究责任。
+      </div>
+    </div>
+  </div>
+
+  <!-- 测试页 -->
+  <div id="quizPage" class="hide">
+    <div class="header" id="header">
+      <h1>🐱 猫咪MBTI性格测试</h1>
+    </div>
+    <div class="progress" id="progress"></div>
+    <div class="question-box" id="questionBox">
+      <div class="question-num" id="qNum"></div>
+      <div class="question-text" id="qText"></div>
+      <div class="options" id="qOptions"></div>
+    </div>
+    <button class="btn" id="nextBtn" disabled>下一步</button>
+
+    <!-- 结果页 -->
+    <div class="result hide" id="result">
+      <h2>你的猫咪类型是</h2>
+      <div class="type" id="type"></div>
+
+      <div id="dims"></div>  <!-- 四维倾向百分比 -->
+      
+      <div class="desc" id="desc"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+// 可使用的授权码
+const AUTH_CODES = ["3K7R9G2B5Q8S4D6Z",
+"7S2G6H4J8L1P5D9",
+"2V8C5B7N3M9R6T4",
+"5G7H2J4K6Z8S1F3",
+"1P3D6F8G2H5K7Z",
+"4B7N2P5R8T9G3S1",
+"8F2G5J7K1L3Z6S4",
+"3R6T8B2Q5S7D9G1",
+"6J9H2W4S7B1N5P3",
+"2Q5S8G1H4J7L3R9",
+"5K8L3Z6S9D2F4G7",
+"9G1B4N7R2T5Y3S6",
+"1D4F7G9H2K5L3Z6",
+"4R7T1W4S6B9N2P5",
+"8H2J5K8Z1S4D7F3",
+"3P6S9D2F5G8H1J7",
+"6B9N3P6R8T2G5S1",
+"2F5G8J1K4L7Z3R9",
+"5J8H3W6S9B2N5P1",
+"9Q2S5D8G1H4J7L3",
+"1G4B7N0P3R6T9Y2",
+"4L7K1Z4S7D2F9G5",
+"8D2F5G8J1K4L7Z3",
+"3R6T9B2Q5S8D1F4",
+"6J9H2W5S8B1N4P7",
+"2P5D8G1H4J7L3R9",
+"5K8L3Z6S9D2F4G7",
+"9G1B4N7R2T5Y3S6",
+"1D4F7G9H2K5L3Z6",
+"4R7T1W4S6B9N2P5",
+"8H2J5K8Z1S4D7F3",
+"3P6S9D2F5G8H1J7",
+"6B9N3P6R8T2G5S1",
+"2F5G8J1K4L7Z3R9",
+"5J8H3W6S9B2N5P1",
+"9Q2S5D8G1H4J7L3",
+"1G4B7N0P3R6T9Y2",
+"4L7K1Z4S7D2F9G5",
+"8D2F5G8J1K4L7Z3",
+"3R6T9B2Q5S8D1F4",
+"6J9H2W5S8B1N4P7",
+"2P5D8G1H4J7L3R9",
+"5K8L3Z6S9D2F4G7",
+"9G1B4N7R2T5Y3S6",
+"1D4F7G9H2K5L3Z6",
+"4R7T1W4S6B9N2P5",
+"8H2J5K8Z1S4D7F3",
+"3P6S9D2F5G8H1J7",
+"6B9N3P6R8T2G5S1",
+"2F5G8J1K4L7Z3R9",
+"5J8H3W6S9B2N5P1",
+"9Q2S5D8G1H4J7L3",
+"1G4B7N0P3R6T9Y2",
+"4L7K1Z4S7D2F9G5",
+"8D2F5G8J1K4L7Z3",
+"3R6T9B2Q5S8D1F4",
+"6J9H2W5S8B1N4P7",
+"XQ2WS9F5Z7D1K6B",
+"5R7T2G8K1D4S9B3",
+"2N5B8V1C7X9Z3L6",
+"7G1J5K9F3S8D2B6",
+"1P7D3F8G5J2K9Z4",
+"4B9N5P2R7T3G8S1",
+"8F1G4J7K2L5Z9S3",
+"3R8T2B5Q7S1D9G4",
+"6J2H5W8S3B7N1P6",
+"2Q8G4H1J5L3R9S6",
+"5K1L6Z3S9D5F2G8",
+"9G4B1N7R5T2Y8S3",
+"1D7F2G5J8H3K6Z9",
+"4R1T4W7S2B5N9P6",
+"8H5J1K8Z4S7D2F9",
+"3P9S2D5F8G1H4J7",
+"6B3N6P9R2T5G8S1",
+"2F8G1J4K7L3Z6R9",
+"5J3H6W9S2B5N8P1",
+"9Q5S2D8G4H1J7L3",
+"1G7B0N3P6R9T2Y5",
+"4L1K4Z7S2D5F9G8",
+"8D5F8G1J4K7L3Z6",
+"3R9T2B5Q8S1D4F7",
+"6J2H5W8S3B7N1P6",
+"2P8G1H4J7L3R9S6",
+"5K1L6Z3S9D5F2G8",
+"9G4B1N7R5T2Y8S3",
+"1D7F2G5J8H3K6Z9",
+"4R1T4W7S2B5N9P6",
+"8H5J1K8Z4S7D2F9",
+"3P9S2D5F8G1H4J7",
+"6B3N6P9R2T5G8S1",
+"2F8G1J4K7L3Z6R9",
+"5J3H6W9S2B5N8P1",
+"9Q5S2D8G4H1J7L3",
+"1G7B0N3P6R9T2Y5",
+"4L1K4Z7S2D5F9G8",
+"8D5F8G1J4K7L3Z6",
+"3R9T2B5Q8S1D4F7",
+"6J2H5W8S3B7N1P6",
+"2P8G1H4J7L3R9S6",
+"5K1L6Z3S9D5F2G8",
+"9G4B1N7R5T2Y8S3",
+"1D7F2G5J8H3K6Z9",
+"4R1T4W7S2B5N9P6",
+"8H5J1K8Z4S7D2F9",
+"3P9S2D5F8G1H4J7",
+"6B3N6P9R2T5G8S1",
+"2F8G1J4K7L3Z6R9",
+"5J3H6W9S2B5N8P1",
+"9Q5S2D8G4H1J7L3",
+"1G7B0N3P6R9T2Y5",
+"4L1K4Z7S2D5F9G8",
+"8D5F8G1J4K7L3Z6",
+"3R9T2B5Q8S1D4F7",
+"6J2H5W8S3B7N1P6",
+"2P8G1H4J7L3R9S6",
+"5K1L6Z3S9D5F2G8",
+"9G4B1N7R5T2Y8S3",
+"1D7F2G5J8H3K6Z9",
+"4R1T4W7S2B5N9P6",
+"8H5J1K8Z4S7D2F9",
+"3P9S2D5F8G1H4J7",
+"6B3N6P9R2T5G8S1",
+"2F8G1J4K7L3Z6R9",
+"5J3H6W9S2B5N8P1",
+"9Q5S2D8G4H1J7L3",
+"1G7B0N3P6R9T2Y5",
+"4L1K4Z7S2D5F9G8",
+"8D5F8G1J4K7L3Z6",
+"3R9T2B5Q8S1D4F7",
+"6J2H5W8S3B7N1P6",
+"2P8G1H4J7L3R9S6",
+"5K1L6Z3S9D5F2G8",
+"9G4B1N7R5T2Y8S3",
+"1D7F2G5J8H3K6Z9",
+"4R1T4W7S2B5N9P6",
+"8H5J1K8Z4S7D2F9",
+"3P9S2D5F8G1H4J7",
+"6B3N6P9R2T5G8S1",
+"2F8G1J4K7L3Z6R9",
+"5J3H6W9S2B5N8P1",
+"9Q5S2D8G4H1J7L3",
+"1G7B0N3P6R9T2Y5",
+"4L1K4Z7S2D5F9G8",
+"8D5F8G1J4K7L3Z6",
+"3R9T2B5Q8S1D4F7",
+"6J2H5W8S3B7N1P6",
+"2P8G1H4J7L3R9S6",
+"5K1L6Z3S9D5F2G8",
+"9G4B1N7R5T2Y8S3",
+"1D7F2G5J8H3K6Z9",
+"4R1T4W7S2B5N9P6",
+"8H5J1K8Z4S7D2F9",
+"3P9S2D5F8G1H4J7",
+"6B3N6P9R2T5G8S1",
+"2F8G1J4K7L3Z6R9",
+"5J3H6W9S2B5N8P1",
+"9Q5S2D8G4H1J7L3",
+"1G7B0N3P6R9T2Y5",
+"4L1K4Z7S2D5F9G8",
+"8D5F8G1J4K7L3Z6",
+"3R9T2B5Q8S1D4F7",
+"6J2H5W8S3B7N1P6",
+"2P8G1H4J7L3R9S6",
+"5K1L6Z3S9D5F2G8",
+"9G4B1N7R5T2Y8S3",
+"1D7F2G5J8H3K6Z9",
+"4R1T4W7S2B5N9P6",
+"8H5J1K8Z4S7D2F9",
+"3P9S2D5F8G1H4J7",
+"6B3N6P9R2T5G8S1",
+"2F8G1J4K7L3Z6R9",
+"5J3H6W9S2B5N8P1",
+"9Q5S2D8G4H1J7L3",
+"1G7B0N3P6R9T2Y5",
+"4L1K4Z7S2D5F9G8",
+"8D5F8G1J4K7L3Z6",
+"3R9T2B5Q8S1D4F7",
+"6J2H5W8S3B7N1P6",
+"2P8G1H4J7L3R9S6",
+"5K1L6Z3S9D5F2G8",
+"9G4B1N7R5T2Y8S3",
+"1D7F2G5J8H3K6Z9",
+"4R1T4W7S2B5N9P6",
+"8H5J1K8Z4S7D2F9",
+"3P9S2D5F8G1H4J7",
+"6B3N6P9R2T5G8S1",
+"2F8G1J4K7L3Z6R9",
+"5J3H6W9S2B5N8P1",
+"9Q5S2D8G4H1J7L3",
+"1G7B0N3P6R9T2Y5",
+"4L1K4Z7S2D5F9G8",
+"8D5F8G1J4K7L3Z6",
+"3R9T2B5Q8S1D4F7",
+"6J2H5W8S3B7N1P6",
+"2P8G1H4J7L3R9S6",
+"5K1L6Z3S9D5F2G8",
+"9G4B1N7R5T2Y8S3",
+"1D7F2G5J8H3K6Z9",
+"4R1T4W7S2B5N9P6",
+"8H5J1K8Z4S7D2F9",
+"3P9S2D5F8G1H4J7",
+"6B3N6P9R2T5G8S1",
+"2F8G1J4K7L3Z6R9",
+"5J3H6W9S2B5N8P1",
+"9Q5S2D8G4H1J7L3",
+"1G7B0N3P6R9T2Y5",
+"4L1K4Z7S2D5F9G8",
+"8D5F8G1J4K7L3Z6",
+"3R9T2B5Q8S1D4F7",
+"6J2H5W8S3B7N1P6",
+"2P8G1H4J7L3R9S6",
+"5K1L6Z3S9D5F2G8",
+"9G4B1N7R5T2Y8S3",
+"1D7F2G5J8H3K6Z9",
+"4R1T4W7S2B5N9P6",
+"8H5J1K8Z4S7D2F9",
+"3P9S2D5F8G1H4J7",
+"6B3N6P9R2T5G8S1",
+"2F8G1J4K7L3Z6R9",
+"5J3H6W9S2B5N8P1",
+"9Q5S2D8G4H1J7L3",
+"1G7B0N3P6R9T2Y5",
+"4L1K4Z7S2D5F9G8",
+"8D5F8G1J4K7L3Z6",
+"3R9T2B5Q8S1D4F7",
+"6J2H5W8S3B7N1P6",
+"2P8G1H4J7L3R9S6",
+"5K1L6Z3S9D5F2G8",
+"9G4B1N7R5T2Y8S3",
+"1D7F2G5J8H3K6Z9",
+"4R1T4W7S2B5N9P6",
+"8H5J1K8Z4S7D2F9",
+"3P9S2D5F8G1H4J7",
+"6B3N6P9R2T5G8S1",
+"2F8G1J4K7L3Z6R9",
+"5J3H6W9S2B5N8P1",
+"9Q5S2D8G4H1J7L3",
+"1G7B0N3P6R9T2Y5",
+"4L1K4Z7S2D5F9G8",
+"8D5F8G1J4K7L3Z6",
+"3R9T2B5Q8S1D4F7",
+"6J2H5W8S3B7N1P6",
+"2P8G1H4J7L3R9S6",
+"5K1L6Z3S9D5F2G8",
+"9G4B1N7R5T2Y8S3",
+"1D7F2G5J8H3K6Z9",
+"4R1T4W7S2B5N9P6",
+"8H5J1K8Z4S7D2F9",
+"3P9S2D5F8G1H4J7",
+"6B3N6P9R2T5G8S1",
+"2F8G1J4K7L3Z6R9",
+"5J3H6W9S2B5N8P1",
+"9Q5S2D8G4H1J7L3",
+"1G7B0N3P6R9T2Y5",
+"4L1K4Z7S2D5F9G8",
+"8D5F8G1J4K7L3Z6",
+"3R9T2B5Q8S1D4F7",
+"6J2H5W8S3B7N1P6",
+"2P8G1H4J7L3R9S6",
+"5K1L6Z3S9D5F2G8",
+"9G4B1N7R5T2Y8S3",
+"1D7F2G5J8H3K6Z9",
+"4R1T4W7S2B5N9P6",
+"8H5J1K8Z4S7D2F9",
+"3P9S2D5F8G1H4J7",
+"6B3N6P9R2T5G8S1",
+"2F8G1J4K7L3Z6R9",
+"5J3H6W9S2B5N8P1",
+"9Q5S2D8G4H1J7L3",
+"1G7B0N3P6R9T2Y5",
+"4L1K4Z7S2D5F9G8",
+"8D5F8G1J4K7L3Z6",
+"3R9T2B5Q8S1D4F7",
+"6J2H5W8S3B7N1P6",
+"2P8G1H4J7L3R9S6",
+"5K1L6Z3S9D5F2G8",
+"9G4B1N7R5T2Y8S3",
+"1D7F2G5J8H3K6Z9",
+"4R1T4W7S2B5N9P6",
+"8H5J1K8Z4S7D2F9",
+"3P9S2D5F8G1H4J7",
+"6B3N6P9R2T5G8S1",
+"2F8G1J4K7L3Z6R9",
+"5J3H6W9S2B5N8P1",
+"9Q5S2D8G4H1J7L3",
+"1G7B0N3P6R9T2Y5",
+"4L1K4Z7S2D5F9G8",
+"8D5F8G1J4K7L3Z6",
+"3R9T2B5Q8S1D4F7",
+"6J2H5W8S3B7N1P6",
+"2P8G1H4J7L3R9S6",
+"5K1L6Z3S9D5F2G8",
+"9G4B1N7R5T2Y8S3",
+"1D7F2G5J8H3K6Z9",
+"4R1T4W7S2B5N9P6",
+"8H5J1K8Z4S7D2F9",
+"3P9S2D5F8G1H4J7",
+"6B3N6P9R2T5G8S1",
+"2F8G1J4K7L3Z6R9",
+"5J3H6W9S2B5N8P1",
+"9Q5S2D8G4H1J7L3",
+"1G7B0N3P6R9T2Y5",
+"4L1K4Z7S2D5F9G8",
+"8D5F8G1J4K7L3Z6",
+"3R9T2B5Q8S1D4F7",
+"6J2H5W8S3B7N1P6",
+"2P8G1H4J7L3R9S6",
+"5K1L6Z3S9D5F2G8",
+"9G4B1N7R5T2Y8S3",
+"1D7F2G5J8H3K6Z9",
+"4R1T4W7S2B5N9P6",
+"8H5J1K8Z4S7D2F9",
+"3P9S2D5F8G1H4J7",
+"6B3N6P9R2T5G8S1",
+"2F8G1J4K7L3Z6R9",
+"5J3H6W9S2B5N8P1",
+"9Q5S2D8G4H1J7L3",
+"1G7B0N3P6R9T2Y5",
+"4L1K4Z7S2D5F9G8",
+"8D5F8G1J4K7L3Z6",
+"3R9T2B5Q8S1D4F7",
+"6J2H5W8S3B7N1P6",
+"2P8G1H4J7L3R9S6",
+"5K1L6Z3S9D5F2G8",
+"9G4B1N7R5T2Y8S3",
+"1D7F2G5J8H3K6Z9",
+"4R1T4W7S2B5N9P6",
+"8H5J1K8Z4S7D2F9",
+"3P9S2D5F8G1H4J7",
+"6B3N6P9R2T5G8S1",
+"2F8G1J4K7L3Z6R9",
+"5J3H6W9S2B5N8P1",
+"9Q5S2D8G4H1J7L3",
+"1G7B0N3P6R9T2Y5",
+"4L1K4Z7S2D5F9G8",
+"8D5F8G1J4K7L3Z6",
+"3R9T2B5Q8S1D4F7",
+"6J2H5W8S3B7N1P6",
+"2P8G1H4J7L3R9S6",
+"5K1L6Z3S9D5F2G8",
+"9G4B1N7R5T2Y8S3",
+"1D7F2G5J8H3K6Z9",
+"4R1T4W7S2B5N9P6",
+"8H5J1K8Z4S7D2F9",
+"3P9S2D5F8G1H4J7",
+"6B3N6P9R2T5G8S1",
+"2F8G1J4K7L3Z6R9",
+"5J3H6W9S2B5N8P1",
+"9Q5S2D8G4H1J7L3",
+"1G7B0N3P6R9T2Y5",
+"4L1K4Z7S2D5F9G8",
+"8D5F8G1J4K7L3Z6",
+"3R9T2B5Q8S1D4F7",
+"6J2H5W8S3B7N1P6",
+"2P8G1H4J7L3R9S6",
+"5K1L6Z3S9D5F2G8",
+"9G4B1N7R5T2Y8S3",
+"1D7F2G5J8H3K6Z9",
+"4R1T4W7S2B5N9P6",
+"8H5J1K8Z4S7D2F9",
+"3P9S2D5F8G1H4J7",
+"6B3N6P9R2T5G8S1",
+"2F8G1J4K7L3Z6R9",
+"5J3H6W9S2B5N8P1",
+"9Q5S2D8G4H1J7L3",
+"1G7B0N3P6R9T2Y5",
+"4L1K4Z7S2D5F9G8",
+"8D5F8G1J4K7L3Z6",
+"3R9T2B5Q8S1D4F7",
+"6J2H5W8S3B7N1P6",
+"2P8G1H4J7L3R9S6",
+"5K1L6Z3S9D5F2G8",
+"9G4B1N7R5T2Y8S3",
+"1D7F2G5J8H3K6Z9",
+"4R1T4W7S2B5N9P6",
+"8H5J1K8Z4S7D2F9",
+"3P9S2D5F8G1H4J7",
+"6B3N6P9R2T5G8S1",
+"2F8G1J4K7L3Z6R9",
+"5J3H6W9S2B5N8P1",
+"9Q5S2D8G4H1J7L3",
+"1G7B0N3P6R9T2Y5",
+"4L1K4Z7S2D5F9G8",
+"8D5F8G1J4K7L3Z6",
+"3R9T2B5Q8S1D4F7",
+"6J2H5W8S3B7N1P6",
+"2P8G1H4J7L3R9S6",
+"5K1L6Z3S9D5F2G8",
+"9G4B1N7R5T2Y8S3",
+"1D7F2G5J8H3K6Z9",
+"4R1T4W7S2B5N9P6",
+"8H5J1K8Z4S7D2F9",
+"3P9S2D5F8G1H4J7",
+"6B3N6P9R2T5G8S1",
+"2F8G1J4K7L3Z6R9",
+"5J3H6W9S2B5N8P1",
+"9Q5S2D8G4H1J7L3",
+"1G7B0N3P6R9T2Y5",
+"4L1K4Z7S2D5F9G8",
+"8D5F8G1J4K7L3Z6",
+"3R9T2B5Q8S1D4F7",
+"6J2H5W8S3B7N1P6",
+"2P8G1H4J7L3R9S6",
+"5K1L6Z3S9D5F2G8",
+"9G4B1N7R5T2Y8S3",
+"1D7F2G5J8H3K6Z9",
+"4R1T4W7S2B5N9P6",
+"8H5J1K8Z4S7D2F9",
+"3P9S2D5F8G1H4J7",
+"6B3N6P9R2T5G8S1",
+"2F8G1J4K7L3Z6R9",
+"5J3H6W9S2B5N8P1",
+"9Q5S2D8G4H1J7L3",
+"1G7B0N3P6R9T2Y5",
+"4L1K4Z7S2D5F9G8",
+"8D5F8G1J4K7L3Z6",
+"3R9T2B5Q8S1D4F7",
+"6J2H5W8S3B7N1P6",
+"2P8G1H4J7L3R9S6",
+"5K1L6Z3S9D5F2G8",
+"9G4B1N7R5T2Y8S3",
+"1D7F2G5J8H3K6Z9",
+"4R1T4W7S2B5N9P6",
+"8H5J1K8Z4S7D2F9",
+"3P9S2D5F8G1H4J7",
+"6B3N6P9R2T5G8S1",
+"2F8G1J4K7L3Z6R9",
+"5J3H6W9S2B5N8P1",
+"9Q5S2D8G4H1J7L3",
+"1G7B0N3P6R9T2Y5",
+"4L1K4Z7S2D5F9G8",
+"8D5F8G1J4K7L3Z6",
+"3R9T2B5Q8S1D4F7",
+"6J2H5W8S3B7N1P6",
+"2P8G1H4J7L3R9S6",
+"5K1L6Z3S9D5F2G8",
+"9G4B1N7R5T2Y8S3",
+"1D7F2G5J8H3K6Z9",
+"4R1T4W7S2B5N9P6",
+"8H5J1K8Z4S7D2F9",
+"3P9S2D5F8G1H4J7",
+"6B3N6P9R2T5G8S1"];
+
+
+const authPage = document.getElementById("authPage");
+const quizPage = document.getElementById("quizPage");
+const error = document.getElementById("error");
+const authCode = document.getElementById("authCode");
+const goBtn = document.getElementById("goBtn");
+
+goBtn.onclick = () => {
+  const val = authCode.value.trim();
+  if (AUTH_CODES.includes(val)) {
+    authPage.classList.add("hide");
+    quizPage.classList.remove("hide");
+    startTest();
+  } else {
+    error.style.display = "block";
+  }
+};
+
+// 35题
+const questions = [
+  { q: "家里来人时，猫咪的反应是？",
+    a: [
+      { t: "E", c: "主动靠近，不怕人" },
+      { t: "I", c: "躲起来，很害羞" },
+      { t: "E", c: "好奇围观，不害怕" },
+      { t: "I", c: "全程不出现" }
+    ]
+  },
+  { q: "对新玩具的态度是？",
+    a: [
+      { t: "S", c: "立刻扑过去玩" },
+      { t: "N", c: "先观察很久" },
+      { t: "S", c: "玩得很投入" },
+      { t: "N", c: "不太感兴趣" }
+    ]
+  },
+  { q: "被主人抚摸时？",
+    a: [
+      { t: "F", c: "享受、蹭人、呼噜" },
+      { t: "T", c: "高冷、很快走开" },
+      { t: "F", c: "主动求摸" },
+      { t: "T", c: "勉强接受，不开心" }
+    ]
+  },
+  { q: "埋屎的态度是？",
+    a: [
+      { t: "J", c: "非常认真" },
+      { t: "P", c: "随便埋甚至不埋" },
+      { t: "J", c: "一定要埋好" },
+      { t: "P", c: "完全敷衍" }
+    ]
+  },
+  { q: "在家大部分时间？",
+    a: [
+      { t: "E", c: "到处跑酷、很活跃" },
+      { t: "I", c: "安静趴着、宅" },
+      { t: "E", c: "跟着主人到处走" },
+      { t: "I", c: "独自待着" }
+    ]
+  },
+  { q: "注意力更喜欢？",
+    a: [
+      { t: "S", c: "激光笔、逗猫棒" },
+      { t: "N", c: "看窗外、发呆" },
+      { t: "S", c: "会动的小东西" },
+      { t: "N", c: "安静思考猫生" }
+    ]
+  },
+  { q: "被说两句时？",
+    a: [
+      { t: "F", c: "委屈、求原谅" },
+      { t: "T", c: "无视、无所谓" },
+      { t: "F", c: "过来撒娇" },
+      { t: "T", c: "转头就走" }
+    ]
+  },
+  { q: "作息规律吗？",
+    a: [
+      { t: "J", c: "很规律" },
+      { t: "P", c: "完全随性" },
+      { t: "J", c: "定点吃饭睡觉" },
+      { t: "P", c: "想睡就睡" }
+    ]
+  },
+  { q: "出门/进航空箱？",
+    a: [
+      { t: "E", c: "好奇不慌" },
+      { t: "I", c: "紧张害怕" },
+      { t: "E", c: "到处看" },
+      { t: "I", c: "缩成一团" }
+    ]
+  },
+  { q: "玩玩具的风格？",
+    a: [
+      { t: "S", c: "猛冲猛抓" },
+      { t: "N", c: "慢悠悠、优雅" },
+      { t: "S", c: "很粗暴" },
+      { t: "N", c: "轻轻玩" }
+    ]
+  },
+  { q: "对零食的态度？",
+    a: [
+      { t: "F", c: "撒娇讨食" },
+      { t: "T", c: "高冷但会吃" },
+      { t: "F", c: "围着你转" },
+      { t: "T", c: "等你放好才来" }
+    ]
+  },
+  { q: "会乱扒东西吗？",
+    a: [
+      { t: "J", c: "不会，很规矩" },
+      { t: "P", c: "经常扒拉" },
+      { t: "J", c: "很爱惜物品" },
+      { t: "P", c: "开心就扒" }
+    ]
+  },
+  { q: "和其他宠物相处？",
+    a: [
+      { t: "E", c: "主动社交" },
+      { t: "I", c: "独来独往" },
+      { t: "E", c: "一起玩" },
+      { t: "I", c: "不理对方" }
+    ]
+  },
+  { q: "思考方式？",
+    a: [
+      { t: "S", c: "务实、只看眼前" },
+      { t: "N", c: "爱幻想、心思多" },
+      { t: "S", c: "直接行动" },
+      { t: "N", c: "先观察" }
+    ]
+  },
+  { q: "主人回家时？",
+    a: [
+      { t: "F", c: "迎接、蹭腿" },
+      { t: "T", c: "看一眼继续睡" },
+      { t: "F", c: "超级开心" },
+      { t: "T", c: "毫无波澜" }
+    ]
+  },
+  { q: "生活习惯？",
+    a: [
+      { t: "J", c: "爱干净、固定位置" },
+      { t: "P", c: "怎么舒服怎么来" },
+      { t: "J", c: "整齐讲究" },
+      { t: "P", c: "随性邋遢" }
+    ]
+  },
+  { q: "陌生人摸它？",
+    a: [
+      { t: "E", c: "接受甚至享受" },
+      { t: "I", c: "抗拒、躲开" },
+      { t: "E", c: "很放松" },
+      { t: "I", c: "很警惕" }
+    ]
+  },
+  { q: "对新环境？",
+    a: [
+      { t: "S", c: "快速适应" },
+      { t: "N", c: "需要很久安全感" },
+      { t: "S", c: "到处探索" },
+      { t: "N", c: "躲着不动" }
+    ]
+  },
+  { q: "表达喜欢的方式？",
+    a: [
+      { t: "F", c: "粘人、呼噜" },
+      { t: "T", c: "默默陪伴、不外露" },
+      { t: "F", c: "主动贴贴" },
+      { t: "T", c: "远远看着你" }
+    ]
+  },
+  { q: "犯错后？",
+    a: [
+      { t: "J", c: "知道错、收敛" },
+      { t: "P", c: "下次还敢" },
+      { t: "J", c: "不敢再犯" },
+      { t: "P", c: "屡教不改" }
+    ]
+  },
+  { q: "家里来新成员？",
+    a: [
+      { t: "E", c: "很快接受" },
+      { t: "I", c: "排斥、躲很久" },
+      { t: "E", c: "主动打招呼" },
+      { t: "I", c: "一直生气" }
+    ]
+  },
+  { q: "最喜欢玩什么？",
+    a: [
+      { t: "S", c: "球类、会动的" },
+      { t: "N", c: "纸袋、箱子、发呆" },
+      { t: "S", c: "追逐游戏" },
+      { t: "N", c: "安静独处" }
+    ]
+  },
+  { q: "被抱在怀里时？",
+    a: [
+      { t: "F", c: "安静享受" },
+      { t: "T", c: "挣扎想走" },
+      { t: "F", c: "很依赖" },
+      { t: "T", c: "很不耐烦" }
+    ]
+  },
+  { q: "每天的活动量？",
+    a: [
+      { t: "J", c: "固定时段疯玩" },
+      { t: "P", c: "随时疯随时睡" },
+      { t: "J", c: "作息稳定" },
+      { t: "P", c: "毫无规律" }
+    ]
+  },
+  { q: "叫它名字的反应？",
+    a: [
+      { t: "E", c: "立刻过来" },
+      { t: "I", c: "看心情理不理" },
+      { t: "E", c: "马上回应" },
+      { t: "I", c: "假装听不见" }
+    ]
+  },
+  { q: "好奇心程度？",
+    a: [
+      { t: "S", c: "什么都要碰" },
+      { t: "N", c: "只看不碰" },
+      { t: "S", c: "非常好奇" },
+      { t: "N", c: "淡定佛系" }
+    ]
+  },
+  { q: "能感知你的情绪吗？",
+    a: [
+      { t: "F", c: "会安慰、贴贴" },
+      { t: "T", c: "没反应、自己玩" },
+      { t: "F", c: "很贴心" },
+      { t: "T", c: "完全不在意" }
+    ]
+  },
+  { q: "吃饭习惯？",
+    a: [
+      { t: "J", c: "定时定量" },
+      { t: "P", c: "少食多餐、随便吃" },
+      { t: "J", c: "很有规矩" },
+      { t: "P", c: "吃两口就走" }
+    ]
+  },
+  { q: "社交意愿？",
+    a: [
+      { t: "E", c: "喜欢热闹" },
+      { t: "I", c: "喜欢安静独处" },
+      { t: "E", c: "亲人" },
+      { t: "I", c: "只认主人" }
+    ]
+  },
+  { q: "处理事情方式？",
+    a: [
+      { t: "S", c: "直接行动" },
+      { t: "N", c: "先想再动" },
+      { t: "S", c: "冲动型" },
+      { t: "N", c: "谨慎型" }
+    ]
+  },
+  { q: "会争宠吃醋吗？",
+    a: [
+      { t: "F", c: "会争、会吃醋" },
+      { t: "T", c: "淡定、不在乎" },
+      { t: "F", c: "非常粘人" },
+      { t: "T", c: "独立冷漠" }
+    ]
+  },
+  { q: "生活态度？",
+    a: [
+      { t: "J", c: "精致、有原则" },
+      { t: "P", c: "摆烂、自由" },
+      { t: "J", c: "讲究生活品质" },
+      { t: "P", c: "怎么快乐怎么来" }
+    ]
+  },
+  { q: "睡觉时喜欢？",
+    a: [
+      { t: "I", c: "找隐蔽角落" },
+      { t: "E", c: "随便睡、露肚皮" },
+      { t: "I", c: "没有安全感" },
+      { t: "E", c: "超级放松" }
+    ]
+  },
+  { q: "对突然的声音反应？",
+    a: [
+      { t: "S", c: "一惊一乍" },
+      { t: "N", c: "淡定不理" },
+      { t: "S", c: "很敏感" },
+      { t: "N", c: "很迟钝" }
+    ]
+  },
+  { q: "整体性格气质？",
+    a: [
+      { t: "F", c: "温柔感性" },
+      { t: "T", c: "理性独立" },
+      { t: "F", c: "软萌治愈" },
+      { t: "T", c: "高冷霸气" }
+    ]
+  }
+];
+
+// 超详细MBTI结果
+const resultMap = {
+ESTJ: `ESTJ · 霸道总裁型
+【性格维度】
+外向(E)｜实感(S)｜思考(T)｜判断(J)
+
+【整体性格】
+这只猫咪性格强势、有主见、天生带领导气质，在家中占据主导地位，做事果断、纪律性强，不喜欢被随意摆弄。它对主人忠诚，但有自己的底线和原则，不会盲目顺从。
+
+【行为模式】
+作息规律、爱干净、有秩序感，遇到问题反应直接，不拖泥带水。对陌生人保持礼貌但疏离，对熟悉的人则展现出保护欲。
+
+【适合相处方式】
+给它足够的空间与尊重，保持稳定的生活节奏，它会用忠诚与可靠回报你。`,
+
+ESFJ: `ESFJ · 暖心小管家型
+【性格维度】
+外向(E)｜实感(S)｜情感(F)｜判断(J)
+
+【整体性格】
+温柔贴心、顾家粘人、情绪细腻，是典型的“治愈系小天使”。它非常在意主人的情绪变化，会主动安慰、陪伴、撒娇，把主人放在第一位。
+
+【行为模式】
+喜欢热闹、喜欢被关注，善于察言观色，对家人温柔包容，对陌生人保持警惕。生活习惯稳定，爱干净，有责任感。
+
+【适合相处方式】
+多给予陪伴、抚摸和正向反馈，它会成为你最温暖、最忠诚的陪伴者。`,
+
+ESTP: `ESTP · 探险家型
+【性格维度】
+外向(E)｜实感(S)｜思考(T)｜感知(P)
+
+【整体性格】
+精力旺盛、好奇心爆炸、反应极快，喜欢冒险、探索、新鲜事物，是家里的“调皮担当”。胆大、直接、爱玩，不怕挑战，充满生命力。
+
+【行为模式】
+动作敏捷、爱玩闹、喜欢追逐游戏，对新玩具、新环境适应极快。性格随性，不记仇，喜欢用行动表达情绪。
+
+【适合相处方式】
+多陪它互动、提供新鲜玩具和活动空间，它会给你带来无穷乐趣。`,
+
+ESFP: `ESFP · 社交小太阳型
+【性格维度】
+外向(E)｜实感(S)｜情感(F)｜感知(P)
+
+【整体性格】
+天生社牛、人来疯、开朗乐观，走到哪里都是焦点。喜欢被抚摸、被夸奖，性格软萌可爱，是全家的开心果。
+
+【行为模式】
+亲人、粘人、爱撒娇，喜欢参与主人的一切活动，对人友善，情绪稳定，生活随性自在。
+
+【适合相处方式】
+多给它关注、陪伴和爱意，它会用快乐治愈你每一天。`,
+
+ENTJ: `ENTJ · 帝王领袖型
+【性格维度】
+外向(E)｜直觉(N)｜思考(T)｜判断(J)
+
+【整体性格】
+智商极高、气场强大、冷静果断，是天生的领导者。独立、有思想、有规划，不轻易服从，有自己的世界规则。
+
+【行为模式】
+喜欢观察、思考、规划行动路线，做事目的性强，冷静沉稳，不轻易流露情绪。
+
+【适合相处方式】
+尊重它的独立性，保持稳定规律的生活，它会默默守护你。`,
+
+ENTP: `ENTP · 聪明杠精型
+【性格维度】
+外向(E)｜直觉(N)｜思考(T)｜感知(P)
+
+【整体性格】
+脑子转得极快、鬼点子多、好奇心重、喜欢逗主人，有点小腹黑。爱玩、爱挑战、爱试探，非常聪明。
+
+【行为模式】
+喜欢玩智力玩具、探索高处、研究新事物，善于观察主人反应，喜欢互动游戏。
+
+【适合相处方式】
+用智力游戏和新鲜事物吸引它，它会非常依赖和信任你。`,
+
+ENFJ: `ENFJ · 温柔领袖型
+【性格维度】
+外向(E)｜直觉(N)｜情感(F)｜判断(J)
+
+【整体性格】
+温柔又有气场、善解人意、情商极高，能读懂主人情绪，有领导力但不霸道，是治愈系小领袖。
+
+【行为模式】
+温柔、体贴、有耐心，喜欢陪伴主人，善于安抚情绪，顾家又懂事。
+
+【适合相处方式】
+真诚对待，它会成为你最懂你的灵魂伴侣。`,
+
+ENFP: `ENFP · 治愈小天使型
+【性格维度】
+外向(E)｜直觉(N)｜情感(F)｜感知(P)
+
+【整体性格】
+天真浪漫、温柔粘人、情绪丰富、想象力强，非常治愈，能抚平所有不开心。
+
+【行为模式】
+软萌、敏感、爱撒娇，喜欢安静陪伴，也喜欢适度玩耍，内心柔软。
+
+【适合相处方式】
+温柔耐心对待，给足安全感，它会全心全意爱你。`,
+
+ISTJ: `ISTJ · 稳重大佬型
+【性格维度】
+内向(I)｜实感(S)｜思考(T)｜判断(J)
+
+【整体性格】
+安静内敛、成熟稳重、作息规律、不爱惹事，像个“老干部”，靠谱、安静、有秩序。
+
+【行为模式】
+爱干净、生活规律、不喜变动，性格低调，不粘人但忠诚。
+
+【适合相处方式】
+保持稳定环境，不强迫社交，它会默默陪伴你很久。`,
+
+ISFJ: `ISFJ · 温柔守护者型
+【性格维度】
+内向(I)｜实感(S)｜情感(F)｜判断(J)
+
+【整体性格】
+细腻敏感、默默付出、忠诚专一、非常顾家，胆小温柔，只信任主人。
+
+【行为模式】
+安静、温柔、谨慎，喜欢安全角落，对主人极度依赖与忠诚。
+
+【适合相处方式】
+温柔、耐心、给足安全感，它会用一生陪伴你。`,
+
+ISTP: `ISTP · 冷静技术宅型
+【性格维度】
+内向(I)｜实感(S)｜思考(T)｜感知(P)
+
+【整体性格】
+冷静神秘、观察力强、独立高冷、动手能力强，有自己的小世界，低调又厉害。
+
+【行为模式】
+喜欢独处、探索、思考，动作冷静，不轻易表达情绪。
+
+【适合相处方式】
+给它空间，适度互动，它会 quietly 守护你。`,
+
+ISFP: `ISFP · 温柔艺术家型
+【性格维度】
+内向(I)｜实感(S)｜情感(F)｜感知(P)
+
+【整体性格】
+颜值高、气质优雅、敏感细腻、温柔安静，喜欢美好事物，是优雅小公主/小王子。
+
+【行为模式】
+动作轻柔、情绪温和、喜欢舒适环境，不喜吵闹与粗暴对待。
+
+【适合相处方式】
+温柔呵护，提供舒适环境，它会展现最美的一面。`,
+
+INTJ: `INTJ · 高冷霸总型
+【性格维度】
+内向(I)｜直觉(N)｜思考(T)｜判断(J)
+
+【整体性格】
+智商天花板、高冷腹黑、心思深沉、极度独立，不爱表达情绪，神秘难猜。
+
+【行为模式】
+喜欢观察、规划、独处，冷静理智，不粘人。
+
+【适合相处方式】
+尊重边界，保持稳定，它会是你最可靠的伙伴。`,
+
+INFJ: `INFJ · 猫界哲学家型
+【性格维度】
+内向(I)｜直觉(N)｜情感(F)｜判断(J)
+
+【整体性格】
+心思细腻、情感丰富、能读懂主人情绪、安静治愈、有灵性，温柔又有深度。
+
+【行为模式】
+安静、敏感、有共情力，喜欢陪伴，能感知主人情绪。
+
+【适合相处方式】
+真诚温柔相待，它会成为灵魂知己。`,
+
+INTP: `INTP · 思考者型
+【性格维度】
+内向(I)｜直觉(N)｜思考(T)｜感知(P)
+
+【整体性格】
+佛系淡定、爱发呆、脑洞大、观察力强，慢热、好奇、安静聪明。
+
+【行为模式】
+喜欢发呆、思考、探索，随性自在，不喜束缚。
+
+【适合相处方式】
+轻松自由，不强迫，它会自在地爱你。`,
+
+INFP: `INFP · 治愈小哭包型
+【性格维度】
+内向(I)｜直觉(N)｜情感(F)｜感知(P)
+
+【整体性格】
+温柔玻璃心、敏感脆弱、情绪丰富、非常需要安全感，软萌易害羞。
+
+【行为模式】
+胆小、温柔、安静，喜欢安全舒适的环境。
+
+【适合相处方式】
+极致温柔、耐心、安全感，它会把全部真心交给你。`
+};
+
+let current = 0;
+let answers = [];
+
+const qNum = document.getElementById("qNum");
+const qText = document.getElementById("qText");
+const qOptions = document.getElementById("qOptions");
+const nextBtn = document.getElementById("nextBtn");
+const progress = document.getElementById("progress");
+const result = document.getElementById("result");
+const type = document.getElementById("type");
+const desc = document.getElementById("desc");
+const dims = document.getElementById("dims");
+
+function renderQuestion() {
+  const q = questions[current];
+  qNum.innerText = `第 ${current + 1} 题 / 35 题`;
+  qText.innerText = q.q;
+  qOptions.innerHTML = "";
+  nextBtn.disabled = true;
+
+  q.a.forEach(item => {
+    const opt = document.createElement("div");
+    opt.className = "option";
+    opt.innerText = item.c;
+    opt.onclick = () => {
+      document.querySelectorAll(".option").forEach(o => o.classList.remove("active"));
+      opt.classList.add("active");
+      answers[current] = item.t;
+      nextBtn.disabled = false;
+    };
+    qOptions.appendChild(opt);
+  });
+  progress.innerText = `已完成 ${answers.filter(Boolean).length} / 35 题`;
+}
+
+function showResult() {
+  document.getElementById("header").classList.add("hide");
+  document.getElementById("questionBox").classList.add("hide");
+  nextBtn.classList.add("hide");
+  result.classList.remove("hide");
+
+  const cnt = { E:0, I:0, S:0, N:0, T:0, F:0, J:0, P:0 };
+  answers.forEach(t => t && cnt[t]++);
+
+  // 计算百分比
+  const totalEI = cnt.E + cnt.I || 1;
+  const totalSN = cnt.S + cnt.N || 1;
+  const totalTF = cnt.T + cnt.F || 1;
+  const totalJP = cnt.J + cnt.P || 1;
+
+  const ePer = Math.round(cnt.E / totalEI * 100);
+  const sPer = Math.round(cnt.S / totalSN * 100);
+  const tPer = Math.round(cnt.T / totalTF * 100);
+  const jPer = Math.round(cnt.J / totalJP * 100);
+
+  const ei = cnt.E >= cnt.I ? "E" : "I";
+  const sn = cnt.S >= cnt.N ? "S" : "N";
+  const tf = cnt.T >= cnt.F ? "T" : "F";
+  const jp = cnt.J >= cnt.P ? "J" : "P";
+  const typ = ei + sn + tf + jp;
+
+  type.innerText = typ;
+  desc.innerText = resultMap[typ] || "未知类型";
+
+  // 输出四维倾向进度条
+  dims.innerHTML = `
+<div class="dim-box">
+  <div class="dim-label"><span>外向(E) / 内向(I)</span><span>${ePer}%</span></div>
+  <div class="dim-bar"><div class="dim-fill" style="width:${ePer}%"></div></div>
+</div>
+<div class="dim-box">
+  <div class="dim-label"><span>实感(S) / 直觉(N)</span><span>${sPer}%</span></div>
+  <div class="dim-bar"><div class="dim-fill" style="width:${sPer}%"></div></div>
+</div>
+<div class="dim-box">
+  <div class="dim-label"><span>思考(T) / 情感(F)</span><span>${tPer}%</span></div>
+  <div class="dim-bar"><div class="dim-fill" style="width:${tPer}%"></div></div>
+</div>
+<div class="dim-box">
+  <div class="dim-label"><span>判断(J) / 感知(P)</span><span>${jPer}%</span></div>
+  <div class="dim-bar"><div class="dim-fill" style="width:${jPer}%"></div></div>
+</div>
+  `;
+}
+
+nextBtn.onclick = () => {
+  current++;
+  if (current >= questions.length) {
+    showResult();
+  } else {
+    renderQuestion();
+  }
+};
+
+function startTest() {
+  current = 0;
+  answers = [];
+  renderQuestion();
+}
+</script>
+</body>
+</html>
